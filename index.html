@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <title>Demiana's AR.js Demo</title>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -76,7 +75,6 @@
   </head>
 
   <body>
-    <!-- UI -->
     <div id="top-banner">
       <div class="dot"></div>
       <span>AR.js Demo by <strong>Demiana</strong> · Point at the <strong>Hiro Marker</strong></span>
@@ -91,16 +89,14 @@
       🎯 Scan the Hiro marker → tap the box to change color!
     </div>
 
-    <!-- AR Scene — camera zoom fixed -->
     <a-scene
       embedded
       vr-mode-ui="enabled: false"
       renderer="antialias: true; alpha: true"
-      arjs="sourceType: webcam; debugUIEnabled: false; facingMode: environment;"
+      arjs="sourceType: webcam; debugUIEnabled: false;"
     >
       <a-marker preset="hiro">
 
-        <!-- Virtual 3D Box — smaller size -->
         <a-box
           id="arBox"
           position="0 0.5 0"
@@ -110,7 +106,6 @@
           animation="property: rotation; to: 0 405 0; loop: true; dur: 4000; easing: linear"
         ></a-box>
 
-        <!-- Small platform under the box -->
         <a-cylinder
           position="0 0.05 0"
           radius="0.4"
@@ -121,13 +116,27 @@
 
       </a-marker>
 
-      <!-- Camera with zoom out -->
-      <a-entity camera="zoom: 0.5;"></a-entity>
+      <a-entity camera="fov: 80;"></a-entity>
 
     </a-scene>
 
-    <!-- Interaction Script -->
     <script>
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { exact: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      }).then(function(stream) {
+        const track = stream.getVideoTracks()[0];
+        const capabilities = track.getCapabilities();
+        if (capabilities.zoom) {
+          track.applyConstraints({ advanced: [{ zoom: 1 }] });
+        }
+      }).catch(function(err) {
+        console.log("Camera error:", err);
+      });
+
       const box = document.getElementById('arBox');
       const instruction = document.getElementById('instruction-box');
       const countNum = document.getElementById('countNum');
